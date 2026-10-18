@@ -56,7 +56,7 @@ export const OurStorySection: React.FC = () => {
                 of our dearest family and friends.&rdquo;
               </p>
               <p className="font-sans text-xs sm:text-sm text-charcoal-600 not-italic leading-relaxed pt-2">
-                We warmly invite you to the serene foothills of Uttarakhand, where under open Corbett skies and surrounded by ancient Sal trees, we shall dance, celebrate, and embark on our lifetime voyage together.
+                Please confirm your RSVP for our wedding celebrations in the serene foothills of Uttarakhand, where under open Corbett skies and surrounded by ancient Sal trees, we shall dance, celebrate, and embark on our lifetime voyage together.
               </p>
             </div>
 

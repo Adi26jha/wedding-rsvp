@@ -14,33 +14,47 @@ export const WEDDING_EVENTS: Record<string, CalendarEvent> = {
   all: {
     title: "Priyal & Justin's Wedding Celebrations",
     description:
-      "Join Priyal and Justin for their wedding celebrations at Corbett Adventure Resort, Bail Parao, Uttarakhand! Events: Haldi (Nov 21, 1 PM), Sangeet (Nov 21, 7 PM), and Wedding (Nov 22).",
+      "Join Priyal and Justin for their wedding celebrations at Corbett Adventure Resort, Bail Parao, Uttarakhand!\n\nSaturday November 21, 2026:\n• 1:00 PM to 4:30 PM: HALDI (Poolside Arena)\n• 7:00 PM to 11:00 PM: COCKTAIL & RING CEREMONY (Swagatam Lawn)\n\nSunday November 22, 2026:\n• 10:00 AM to 11:30 AM: CHOODA CEREMONY (Banquet Hall)\n• 4:30 PM to 10:00 PM: THE WEDDING (Adanya Lawn)",
     location: "Corbett Adventure Resort, Bail Parao, Ramnagar, Uttarakhand 244715",
     // 21 Nov 2026 13:00 IST = 21 Nov 07:30 UTC
     startUtc: "20261121T073000Z",
-    // 23 Nov 2026 11:00 IST = 23 Nov 05:30 UTC
-    endUtc: "20261123T053000Z",
+    // 22 Nov 2026 22:00 IST = 22 Nov 16:30 UTC
+    endUtc: "20261122T163000Z",
   },
   haldi: {
-    title: "Priyal & Justin - Haldi Ceremony",
-    description: "Yellow vibes, sunshine, and joyful rituals to kick off the wedding festivities.",
-    location: "Corbett Adventure Resort, Bail Parao, Uttarakhand",
+    title: "Priyal & Justin - Haldi",
+    description: "The festivities begin in a garden filled with joy 💕\nDress Code: Shades of Pink\nLocation: Poolside Arena, Corbett Adventure Resort",
+    location: "Poolside Arena, Corbett Adventure Resort, Bail Parao, Uttarakhand",
     startUtc: "20261121T073000Z", // 1:00 PM IST
-    endUtc: "20261121T103000Z",   // 4:00 PM IST
+    endUtc: "20261121T110000Z",   // 4:30 PM IST
+  },
+  cocktail: {
+    title: "Priyal & Justin - Cocktail & Ring Ceremony",
+    description: "As day turns to night, let music and the magic of stars brighten up the celebrations💃\nDress Code: All-Bling\nLocation: Swagatam Lawn, Corbett Adventure Resort",
+    location: "Swagatam Lawn, Corbett Adventure Resort, Bail Parao, Uttarakhand",
+    startUtc: "20261121T133000Z", // 7:00 PM IST
+    endUtc: "20261121T173000Z",   // 11:00 PM IST
   },
   sangeet: {
-    title: "Priyal & Justin - Sangeet & Musical Night",
-    description: "An evening of music, performances, cocktails, and non-stop dancing under the Corbett stars.",
-    location: "Corbett Adventure Resort, Bail Parao, Uttarakhand",
+    title: "Priyal & Justin - Cocktail & Ring Ceremony",
+    description: "As day turns to night, let music and the magic of stars brighten up the celebrations💃\nDress Code: All-Bling\nLocation: Swagatam Lawn, Corbett Adventure Resort",
+    location: "Swagatam Lawn, Corbett Adventure Resort, Bail Parao, Uttarakhand",
     startUtc: "20261121T133000Z", // 7:00 PM IST
-    endUtc: "20261121T180000Z",   // 11:30 PM IST
+    endUtc: "20261121T173000Z",   // 11:00 PM IST
+  },
+  chooda: {
+    title: "Priyal & Justin - Chooda Ceremony",
+    description: "A sacred blessing, a shower of love, and a lifetime of happiness ❤️\nDress Code: Ethnic Wear\nLocation: Banquet Hall, Corbett Adventure Resort",
+    location: "Banquet Hall, Corbett Adventure Resort, Bail Parao, Uttarakhand",
+    startUtc: "20261122T043000Z", // 10:00 AM IST
+    endUtc: "20261122T060000Z",   // 11:30 AM IST
   },
   wedding: {
-    title: "Priyal & Justin - Wedding & Phere",
-    description: "The wedding ceremony and auspicious pheras as Priyal and Justin begin their lifetime journey together.",
-    location: "Corbett Adventure Resort, Bail Parao, Uttarakhand",
-    startUtc: "20261122T113000Z", // 5:00 PM IST
-    endUtc: "20261122T173000Z",   // 11:00 PM IST
+    title: "Priyal & Justin - The Wedding",
+    description: "Two stories intertwine to become one timeless tale 👩❤️👨\nDress Code: Royal Indian Attire\nLocation: Adanya Lawn, Corbett Adventure Resort",
+    location: "Adanya Lawn, Corbett Adventure Resort, Bail Parao, Uttarakhand",
+    startUtc: "20261122T110000Z", // 4:30 PM IST
+    endUtc: "20261122T163000Z",   // 10:00 PM IST
   },
 };
 

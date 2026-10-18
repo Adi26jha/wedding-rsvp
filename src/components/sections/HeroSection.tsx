@@ -207,7 +207,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ familyGreeting }) => {
               transition={{ duration: 0.8, delay: 0.7 }}
               className="font-serif italic text-base sm:text-xl text-gold-200/90 max-w-xl mb-6 leading-relaxed"
             >
-              Request the honour of your presence as they exchange vows beneath the ancient trees and starlit skies of Jim Corbett.
+              Kindly confirm your RSVP as they exchange vows beneath the ancient trees and starlit skies of Jim Corbett.
             </motion.p>
 
             {/* Date & Venue Badges */}

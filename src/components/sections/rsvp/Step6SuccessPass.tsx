@@ -14,8 +14,10 @@ interface Step6Props {
 
 const EVENT_LABELS: Record<string, string> = {
   haldi: "Haldi (21 Nov 1 PM)",
-  sangeet: "Sangeet (21 Nov 7 PM)",
-  wedding: "The Wedding (22 Nov)",
+  cocktail: "Cocktail & Ring (21 Nov 7 PM)",
+  chooda: "Chooda Ceremony (22 Nov 10 AM)",
+  wedding: "The Wedding (22 Nov 4:30 PM)",
+  sangeet: "Cocktail & Ring (21 Nov 7 PM)",
 };
 
 export const Step6SuccessPass: React.FC<Step6Props> = ({
@@ -116,10 +118,8 @@ export const Step6SuccessPass: React.FC<Step6Props> = ({
                 <span className="text-charcoal-400 uppercase text-[10px] tracking-wider">
                   Functions
                 </span>
-                <span className="text-charcoal-800 font-medium text-right max-w-[220px]">
-                  {response.attendingEvents
-                    ?.map((e) => EVENT_LABELS[e] || e)
-                    .join(", ")}
+                <span className="text-charcoal-800 font-medium text-right max-w-[240px]">
+                  All Celebrations (Haldi, Cocktail, Chooda, Wedding)
                 </span>
               </div>
 

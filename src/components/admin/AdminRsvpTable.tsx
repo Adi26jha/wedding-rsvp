@@ -63,7 +63,9 @@ export const AdminRsvpTable: React.FC<AdminRsvpTableProps> = ({ rsvps, adminKey 
       statusFilter === "all" || r.attendanceStatus === statusFilter;
 
     const matchesEvent =
-      eventFilter === "all" || r.attendingEvents.includes(eventFilter);
+      eventFilter === "all" ||
+      r.attendingEvents.includes(eventFilter) ||
+      (eventFilter === "cocktail" && r.attendingEvents.includes("sangeet"));
 
     return matchesSearch && matchesStatus && matchesEvent;
   });
@@ -178,8 +180,9 @@ export const AdminRsvpTable: React.FC<AdminRsvpTableProps> = ({ rsvps, adminKey 
             >
               <option value="all">All Events</option>
               <option value="haldi">Haldi</option>
-              <option value="sangeet">Sangeet</option>
-              <option value="wedding">Wedding</option>
+              <option value="cocktail">Cocktail &amp; Ring</option>
+              <option value="chooda">Chooda Ceremony</option>
+              <option value="wedding">The Wedding</option>
             </select>
           </div>
 

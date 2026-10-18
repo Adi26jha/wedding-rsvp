@@ -53,7 +53,9 @@ export const rsvpFormSchema = z
     attendanceStatus: z.enum(["attending", "declined"], {
       required_error: "Please select whether you will attend",
     }),
-    attendingEvents: z.array(z.string()).default([]),
+    attendingEvents: z
+      .array(z.string())
+      .default(["haldi", "cocktail", "chooda", "wedding"]),
     guestCount: z.number().int().min(1).max(10).default(1),
     attendees: z.array(attendeeSchema).default([]),
     consentGiven: z.boolean().default(false),
@@ -62,15 +64,8 @@ export const rsvpFormSchema = z
     confirmUpdate: z.boolean().optional().default(false),
   })
   .superRefine((data, ctx) => {
-    // If attending, require at least one event selected
+    // If attending, validate attendees and consent
     if (data.attendanceStatus === "attending") {
-      if (data.attendingEvents.length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["attendingEvents"],
-          message: "Please select at least one event you plan to attend",
-        });
-      }
 
       // Check attendees array matches guestCount
       if (data.attendees.length !== data.guestCount) {

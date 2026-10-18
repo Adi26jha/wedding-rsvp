@@ -41,7 +41,7 @@ export const DuplicateConfirmModal: React.FC<DuplicateConfirmModalProps> = ({
               Existing RSVP Found
             </h4>
             <p className="text-xs text-charcoal-500 font-sans mt-0.5">
-              An invitation response is already registered with this mobile number.
+              An RSVP is already registered with this mobile number.
             </p>
           </div>
         </div>

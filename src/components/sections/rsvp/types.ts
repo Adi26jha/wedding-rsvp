@@ -14,7 +14,7 @@ export interface RsvpFormState {
   mobileNumber: string;
   email: string;
   attendanceStatus: "attending" | "declined" | "";
-  attendingEvents: string[]; // ['haldi', 'sangeet', 'wedding']
+  attendingEvents: string[]; // ['haldi', 'cocktail', 'chooda', 'wedding']
   guestCount: number;
   attendees: AttendeeInput[];
   consentGiven: boolean;

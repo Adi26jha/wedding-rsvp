@@ -73,7 +73,10 @@ export async function POST(req: NextRequest) {
         mobile_number: validated.mobileNumber,
         email: validated.email || null,
         attendance_status: validated.attendanceStatus,
-        attending_events: validated.attendingEvents,
+        attending_events:
+          validated.attendanceStatus === "attending"
+            ? ["haldi", "cocktail", "chooda", "wedding"]
+            : [],
         guest_count: validated.attendanceStatus === "attending" ? validated.guestCount : 0,
         notes: validated.notes || null,
         ip_hash: ip,

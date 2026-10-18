@@ -13,18 +13,35 @@ export const HaldiIcon: React.FC<{ className?: string }> = ({ className = "w-6 h
   </svg>
 );
 
-export const SangeetIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
+export const CocktailRingIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={className} strokeWidth="1.5">
-    {/* Traditional Indian Dholak Drum */}
-    <ellipse cx="6" cy="12" rx="2" ry="5" stroke="currentColor" fill="currentColor" fillOpacity="0.2" />
-    <ellipse cx="18" cy="12" rx="2" ry="5" stroke="currentColor" fill="currentColor" fillOpacity="0.2" />
-    <path d="M 6 7 Q 12 5 18 7" stroke="currentColor" />
-    <path d="M 6 17 Q 12 19 18 17" stroke="currentColor" />
-    {/* Diagonal leather laces */}
-    <path d="M 6 7 L 18 17" stroke="currentColor" strokeWidth="0.9" opacity="0.6" />
-    <path d="M 6 17 L 18 7" stroke="currentColor" strokeWidth="0.9" opacity="0.6" />
-    {/* Rhythm note sparkle */}
-    <path d="M 12 2 L 13 4 L 15 4 L 13.5 5.5 L 14 7.5 L 12 6.5 L 10 7.5 L 10.5 5.5 L 9 4 L 11 4 Z" fill="currentColor" opacity="0.5" />
+    {/* Interlocking Rings and Cocktail Sparkle */}
+    <circle cx="9" cy="14" r="5" stroke="currentColor" fill="currentColor" fillOpacity="0.1" />
+    <circle cx="15" cy="14" r="5" stroke="currentColor" fill="currentColor" fillOpacity="0.1" />
+    {/* Diamond atop the ring */}
+    <polygon points="9,6 11,9 9,10 7,9" stroke="currentColor" fill="currentColor" fillOpacity="0.4" />
+    {/* Starlight sparkles for All-Bling */}
+    <path d="M 19 4 L 19.5 6 L 21.5 6.5 L 19.5 7 L 19 9 L 18.5 7 L 16.5 6.5 L 18.5 6 Z" fill="currentColor" />
+    <path d="M 4 5 L 4.5 6.5 L 6 7 L 4.5 7.5 L 4 9 L 3.5 7.5 L 2 7 L 3.5 6.5 Z" fill="currentColor" opacity="0.7" />
+  </svg>
+);
+
+export const SangeetIcon = CocktailRingIcon;
+
+export const ChoodaIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={className} strokeWidth="1.5">
+    {/* Chooda Bangles (Red & Ivory Stack) */}
+    <ellipse cx="12" cy="7" rx="7" ry="2.5" stroke="currentColor" fill="currentColor" fillOpacity="0.2" />
+    <ellipse cx="12" cy="9" rx="7" ry="2.5" stroke="currentColor" strokeDasharray="1 1" />
+    <ellipse cx="12" cy="11" rx="7" ry="2.5" stroke="currentColor" fill="currentColor" fillOpacity="0.15" />
+    <ellipse cx="12" cy="13" rx="7" ry="2.5" stroke="currentColor" />
+    {/* Hanging Kalire / Ornate Bell Tassels */}
+    <path d="M 9 14 L 8 18 L 10 18 Z" stroke="currentColor" fill="currentColor" fillOpacity="0.3" />
+    <circle cx="9" cy="20" r="1" fill="currentColor" />
+    <path d="M 15 14 L 14 18 L 16 18 Z" stroke="currentColor" fill="currentColor" fillOpacity="0.3" />
+    <circle cx="15" cy="20" r="1" fill="currentColor" />
+    {/* Central heart of love */}
+    <path d="M 12 3 C 11.5 2 10.5 2 10 2.5 C 9.5 3 9.5 4 12 5.5 C 14.5 4 14.5 3 14 2.5 C 13.5 2 12.5 2 12 3 Z" fill="currentColor" />
   </svg>
 );
 

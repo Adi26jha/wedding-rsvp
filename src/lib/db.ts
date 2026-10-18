@@ -57,7 +57,7 @@ class MemoryDatabase {
       mobile_number: "9876543210",
       email: "vikram.malhotra@example.com",
       attendance_status: "attending",
-      attending_events: ["haldi", "sangeet", "wedding"],
+      attending_events: ["haldi", "cocktail", "chooda", "wedding"],
       guest_count: 2,
       notes: "Looking forward to celebrating with Priyal and Justin!",
       ip_hash: "seed-ip-hash",

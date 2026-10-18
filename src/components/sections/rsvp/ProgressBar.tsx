@@ -12,7 +12,7 @@ interface ProgressBarProps {
 const STEP_LABELS = [
   "Contact",
   "Attendance",
-  "Events & Count",
+  "Guest Count",
   "Guest IDs",
   "Review & Consent",
 ];

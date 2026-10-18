@@ -14,9 +14,11 @@ interface Step5Props {
 }
 
 const EVENT_NAMES: Record<string, string> = {
-  haldi: "Haldi Ceremony (21 Nov 1 PM)",
-  sangeet: "Sangeet & Musical Night (21 Nov 7 PM)",
-  wedding: "The Wedding & Phere (22 Nov)",
+  haldi: "HALDI (21 Nov 1:00 PM)",
+  cocktail: "COCKTAIL & RING CEREMONY (21 Nov 7:00 PM)",
+  chooda: "CHOODA CEREMONY (22 Nov 10:00 AM)",
+  wedding: "THE WEDDING (22 Nov 4:30 PM)",
+  sangeet: "COCKTAIL & RING CEREMONY (21 Nov 7:00 PM)",
 };
 
 export const Step5ReviewConsent: React.FC<Step5Props> = ({
@@ -86,17 +88,22 @@ export const Step5ReviewConsent: React.FC<Step5Props> = ({
 
         {/* Functions attending */}
         <div className="pb-3 border-b border-gold-200/60">
-          <span className="text-[10px] uppercase tracking-wider text-charcoal-400 font-sans block mb-1.5 flex items-center gap-1">
-            <Calendar className="w-3 h-3 text-gold-600" />
-            Celebrations Attending
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {formData.attendingEvents.map((evt) => (
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase tracking-wider text-charcoal-400 font-sans flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-gold-600" />
+              Celebrations Included
+            </span>
+            <span className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-sans font-medium">
+              All 4 Ceremonies
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            {["haldi", "cocktail", "chooda", "wedding"].map((evt) => (
               <span
                 key={evt}
-                className="px-2.5 py-1 rounded-md bg-ivory-200/80 border border-gold-300/60 text-xs text-maroon-900 font-medium font-sans"
+                className="px-2.5 py-1.5 rounded-md bg-ivory-200/80 border border-gold-300/60 text-xs text-maroon-900 font-medium font-sans"
               >
-                {EVENT_NAMES[evt] || evt}
+                {EVENT_NAMES[evt]}
               </span>
             ))}
           </div>

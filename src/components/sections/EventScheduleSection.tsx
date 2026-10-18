@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { Clock, MapPin, CalendarPlus, Navigation } from "lucide-react";
 import { DrawDivider } from "../decorative/DrawDivider";
-import { HaldiIcon, SangeetIcon, WeddingIcon } from "../decorative/EventIcons";
+import { HaldiIcon, CocktailRingIcon, ChoodaIcon, WeddingIcon } from "../decorative/EventIcons";
 
 interface EventItem {
   id: string;
@@ -23,41 +23,54 @@ interface EventItem {
 const EVENTS: EventItem[] = [
   {
     id: "haldi",
-    name: "Haldi Ceremony",
-    subtitle: "Pithi & Turmeric Blessings",
-    date: "Saturday, 21st November 2026",
-    time: "1:00 PM Onwards",
-    attire: "Sunshine Yellow, Ochre & Floral Pastels",
+    name: "HALDI",
+    subtitle: "Poolside Arena",
+    date: "Saturday, November 21, 2026",
+    time: "1:00 PM to 4:30 PM",
+    attire: "Shades of Pink",
+    description: "The festivities begin in a garden filled with joy 💕",
+    icon: <HaldiIcon className="w-6 h-6 text-pink-700" />,
+    tagColor: "bg-pink-100/90 text-pink-950 border-pink-300",
+    accentColor: "border-l-pink-500",
+    badgeBg: "bg-pink-500/15",
+  },
+  {
+    id: "cocktail",
+    name: "COCKTAIL & RING CEREMONY",
+    subtitle: "Swagatam Lawn",
+    date: "Saturday, November 21, 2026",
+    time: "7:00 PM to 11:00 PM",
+    attire: "All-Bling",
     description:
-      "A joyful afternoon of fragrant turmeric paste, flower showers, refreshing welcome coolers, and traditional folk music to invoke auspicious beginnings.",
-    icon: <HaldiIcon className="w-6 h-6 text-amber-700" />,
+      "As day turns to night, let music and the magic of stars brighten up the celebrations💃",
+    icon: <CocktailRingIcon className="w-6 h-6 text-amber-700" />,
     tagColor: "bg-amber-100/90 text-amber-950 border-amber-300",
     accentColor: "border-l-amber-500",
     badgeBg: "bg-amber-500/15",
   },
   {
-    id: "sangeet",
-    name: "Sangeet & Musical Night",
-    subtitle: "Rhythm, Cocktails & Starlight",
-    date: "Saturday, 21st November 2026",
-    time: "7:00 PM Onwards",
-    attire: "Indo-Western Glamour, Royal Emerald & Deep Jewel Tones",
+    id: "chooda",
+    name: "CHOODA CEREMONY",
+    subtitle: "Banquet Hall",
+    date: "Sunday, November 22, 2026",
+    time: "10:00 AM to 11:30 AM",
+    attire: "Ethnic Wear",
     description:
-      "An electric evening of choreographed family dance battles, cocktails, lavish barbecue, and dancing late into the night under the Corbett canopy.",
-    icon: <SangeetIcon className="w-6 h-6 text-emerald-800" />,
-    tagColor: "bg-emerald-100/90 text-emerald-950 border-emerald-300",
-    accentColor: "border-l-emerald-600",
-    badgeBg: "bg-emerald-600/15",
+      "A sacred blessing, a shower of love, and a lifetime of happiness ❤️",
+    icon: <ChoodaIcon className="w-6 h-6 text-rose-700" />,
+    tagColor: "bg-rose-100/90 text-rose-950 border-rose-300",
+    accentColor: "border-l-rose-500",
+    badgeBg: "bg-rose-500/15",
   },
   {
     id: "wedding",
-    name: "The Wedding & Phere",
-    subtitle: "Sacred Vows & Eternal Union",
-    date: "Sunday, 22nd November 2026",
-    time: "Evening Celebrations",
-    attire: "Regal Indian Traditional (Ivory, Crimson & Antique Gold)",
+    name: "THE WEDDING",
+    subtitle: "Adanya Lawn",
+    date: "Sunday, November 22, 2026",
+    time: "4:30 PM to 10:00 PM",
+    attire: "Royal Indian Attire",
     description:
-      "The ceremonial Baraat procession, exchange of fragrant Varmala garlands, and sacred fire pheras as Priyal and Justin bind their lives in sacred union.",
+      "Two stories intertwine to become one timeless tale 👩❤️👨",
     icon: <WeddingIcon className="w-6 h-6 text-maroon-800" />,
     tagColor: "bg-maroon-100/90 text-maroon-950 border-maroon-300",
     accentColor: "border-l-maroon-700",
@@ -166,7 +179,7 @@ export const EventScheduleSection: React.FC = () => {
                       <span>{event.subtitle}</span>
                     </span>
                     <span className="text-[11px] font-sans uppercase tracking-widest text-gold-700 font-bold">
-                      Day {index === 2 ? "2" : "1"}
+                      Day {index >= 2 ? "2" : "1"}
                     </span>
                   </div>
 
@@ -240,7 +253,7 @@ export const EventScheduleSection: React.FC = () => {
                       <span>{event.subtitle}</span>
                     </span>
                     <span className="text-[10px] font-sans uppercase tracking-widest text-gold-700 font-bold">
-                      Day {index === 2 ? "2" : "1"}
+                      Day {index >= 2 ? "2" : "1"}
                     </span>
                   </div>
 

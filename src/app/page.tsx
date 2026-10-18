@@ -55,7 +55,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           <DrawDivider />
         </div>
 
-        {/* 3. Event Schedule (Haldi, Sangeet, Wedding) */}
+        {/* 3. Event Schedule (Haldi, Cocktail & Ring, Chooda, Wedding) */}
         <EventScheduleSection />
 
         {/* 4. Venue & Accommodation Details */}

@@ -26,9 +26,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Priyal & Justin | Wedding Invitation & RSVP",
+  title: "Priyal & Justin | Wedding RSVP",
   description:
-    "We joyfully invite you to celebrate the wedding of Priyal & Justin at Corbett Adventure Resort, Bail Parao, Uttarakhand on 21st & 22nd November 2026.",
+    "Kindly RSVP for the wedding celebrations of Priyal & Justin at Corbett Adventure Resort, Bail Parao, Uttarakhand on 21st & 22nd November 2026.",
   // Security & Privacy: Never index the private wedding portal on search engines
   robots: {
     index: false,
@@ -40,16 +40,16 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Priyal & Justin — Wedding Invitation",
+    title: "Priyal & Justin — Wedding RSVP",
     description:
-      "Join our wedding celebrations at Corbett Adventure Resort, Uttarakhand on 21st & 22nd November 2026. Please RSVP your attendance.",
+      "Confirm your RSVP for our wedding celebrations at Corbett Adventure Resort, Uttarakhand on 21st & 22nd November 2026.",
     type: "website",
     locale: "en_IN",
-    siteName: "Priyal & Justin Wedding Portal",
+    siteName: "Priyal & Justin Wedding RSVP Portal",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Priyal & Justin — Wedding Invitation",
+    title: "Priyal & Justin — Wedding RSVP",
     description: "21st - 22nd November 2026 | Corbett Adventure Resort, Uttarakhand",
   },
 };

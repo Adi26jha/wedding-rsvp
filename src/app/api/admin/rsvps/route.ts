@@ -17,16 +17,18 @@ export async function GET(req: NextRequest) {
     let totalDeclined = 0;
     let totalAttendingResponses = 0;
     let haldiCount = 0;
-    let sangeetCount = 0;
+    let cocktailCount = 0;
+    let choodaCount = 0;
     let weddingCount = 0;
 
     rsvps.forEach((r) => {
       if (r.attendance_status === "attending") {
         totalAttendingResponses += 1;
         totalConfirmedGuests += r.guest_count;
-        if (r.attending_events?.includes("haldi")) haldiCount += r.guest_count;
-        if (r.attending_events?.includes("sangeet")) sangeetCount += r.guest_count;
-        if (r.attending_events?.includes("wedding")) weddingCount += r.guest_count;
+        if (r.attending_events?.includes("haldi") || !r.attending_events?.length) haldiCount += r.guest_count;
+        if (r.attending_events?.includes("cocktail") || r.attending_events?.includes("sangeet") || !r.attending_events?.length) cocktailCount += r.guest_count;
+        if (r.attending_events?.includes("chooda") || !r.attending_events?.length) choodaCount += r.guest_count;
+        if (r.attending_events?.includes("wedding") || !r.attending_events?.length) weddingCount += r.guest_count;
       } else {
         totalDeclined += 1;
       }
@@ -61,8 +63,10 @@ export async function GET(req: NextRequest) {
         totalConfirmedGuests,
         totalDeclined,
         haldiCount,
-        sangeetCount,
+        cocktailCount,
+        choodaCount,
         weddingCount,
+        sangeetCount: cocktailCount,
       },
       rsvps: sanitizedRsvps,
       recentAuditLogs: auditLogs.slice(0, 20),

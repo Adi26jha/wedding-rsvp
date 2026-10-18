@@ -1,6 +1,6 @@
-# Priyal & Justin — Wedding Invitation & RSVP Portal
+# Priyal & Justin — Wedding RSVP Portal
 
-A production-ready, luxury editorial Indian wedding invitation and multi-step RSVP web application built for the wedding of **Priyal & Justin** at **Corbett Adventure Resort, Bail Parao, Uttarakhand** (21st–22nd November 2026).
+A production-ready, luxury editorial Indian wedding RSVP web application built for the wedding celebrations of **Priyal & Justin** at **Corbett Adventure Resort, Bail Parao, Uttarakhand** (21st–22nd November 2026).
 
 ---
 
@@ -77,7 +77,7 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- **Wedding Invitation & RSVP**: [http://localhost:3000](http://localhost:3000)
+- **Wedding RSVP**: [http://localhost:3000](http://localhost:3000)
 - **Personalized URL Demo**: [http://localhost:3000?family=sharma](http://localhost:3000?family=sharma)
 - **Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin) (Default passcode: `corbett2026admin`)
 

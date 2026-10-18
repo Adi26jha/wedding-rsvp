@@ -134,7 +134,7 @@ export const RoyalDoorIntro: React.FC<RoyalDoorIntroProps> = ({ onOpened }) => {
                 Priyal &amp; Justin
               </p>
               <h2 className="font-serif text-xl sm:text-2xl text-gold-100 font-medium tracking-wide">
-                Corbett Wedding Invitation
+                Corbett Wedding RSVP
               </h2>
             </div>
 

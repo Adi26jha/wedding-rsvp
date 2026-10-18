@@ -25,7 +25,7 @@ const initialFormState: RsvpFormState = {
   mobileNumber: "",
   email: "",
   attendanceStatus: "",
-  attendingEvents: ["haldi", "sangeet", "wedding"],
+  attendingEvents: ["haldi", "cocktail", "chooda", "wedding"],
   guestCount: 1,
   attendees: [{ fullName: "", ageGroup: "adult" }],
   consentGiven: false,
@@ -90,6 +90,10 @@ export const RsvpWizard: React.FC<RsvpWizardProps> = ({ initialFamilyParam }) =>
     try {
       const payload = {
         ...formData,
+        attendingEvents:
+          formData.attendanceStatus === "attending"
+            ? ["haldi", "cocktail", "chooda", "wedding"]
+            : [],
         confirmUpdate: forceUpdate || formData.confirmUpdate,
       };
 
