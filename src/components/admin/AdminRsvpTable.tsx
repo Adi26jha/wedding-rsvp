@@ -14,6 +14,7 @@ import {
   FileText,
   ExternalLink,
   Lock,
+  Loader2,
 } from "lucide-react";
 
 interface AttendeeView {
@@ -50,6 +51,7 @@ export const AdminRsvpTable: React.FC<AdminRsvpTableProps> = ({ rsvps, adminKey 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [eventFilter, setEventFilter] = useState<string>("all");
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // Filtered List
   const filteredRsvps = rsvps.filter((r) => {
@@ -82,21 +84,50 @@ export const AdminRsvpTable: React.FC<AdminRsvpTableProps> = ({ rsvps, adminKey 
     );
   };
 
-  const handleDownloadDocument = (attendeeId: string) => {
-    // Direct browser download
-    const url = `/api/admin/document?attendeeId=${attendeeId}&download=true&key=${encodeURIComponent(adminKey)}`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `aadhaar-${attendeeId.slice(0, 8)}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  const handleDownloadDocument = async (attendeeId: string, customFileName?: string) => {
+    try {
+      setDownloadingId(attendeeId);
+      const url = `/api/admin/document?attendeeId=${attendeeId}&download=true&key=${encodeURIComponent(adminKey)}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.error || "Unable to download document. Attendee record not found or error occurred.");
+        return;
+      }
+
+      const blob = await res.blob();
+      const contentDisposition = res.headers.get("content-disposition");
+      let downloadName = customFileName;
+      if (!downloadName && contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^";]+)"?/);
+        if (match && match[1]) {
+          downloadName = match[1];
+        }
+      }
+      if (!downloadName) {
+        downloadName = `aadhaar-${attendeeId.slice(0, 8)}.jpg`;
+      }
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+      alert("Failed to download document. Please check your network connection.");
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   const handleDownloadAllFamilyDocs = (attendees: AttendeeView[]) => {
     attendees.forEach((att, idx) => {
       setTimeout(() => {
-        handleDownloadDocument(att.id);
+        handleDownloadDocument(att.id, att.documentName);
       }, idx * 400);
     });
   };
@@ -365,12 +396,17 @@ export const AdminRsvpTable: React.FC<AdminRsvpTableProps> = ({ rsvps, adminKey 
 
                                         <button
                                           type="button"
-                                          onClick={() => handleDownloadDocument(att.id)}
-                                          className="px-2.5 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-400 text-emerald-950 text-[11px] font-sans font-semibold flex items-center gap-1 transition-all shadow-2xs"
+                                          disabled={downloadingId === att.id}
+                                          onClick={() => handleDownloadDocument(att.id, att.documentName)}
+                                          className="px-2.5 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 border border-emerald-400 text-emerald-950 text-[11px] font-sans font-semibold flex items-center gap-1 transition-all shadow-2xs disabled:opacity-60 disabled:cursor-wait"
                                           title="Download decrypted Aadhaar file"
                                         >
-                                          <Download className="w-3 h-3 text-emerald-700" />
-                                          <span>Download</span>
+                                          {downloadingId === att.id ? (
+                                            <Loader2 className="w-3 h-3 text-emerald-700 animate-spin" />
+                                          ) : (
+                                            <Download className="w-3 h-3 text-emerald-700" />
+                                          )}
+                                          <span>{downloadingId === att.id ? "Downloading..." : "Download"}</span>
                                         </button>
                                       </div>
                                     </div>

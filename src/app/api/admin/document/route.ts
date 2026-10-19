@@ -45,14 +45,41 @@ export async function GET(req: NextRequest) {
     });
 
     // Strip data URL scheme if present (e.g. "data:image/jpeg;base64,...")
-    const cleanBase64 = decryptedBase64.includes(",")
-      ? decryptedBase64.split(",")[1]
-      : decryptedBase64;
+    let cleanBase64 = decryptedBase64;
+    let mimeType = attendee.document_type;
+
+    if (decryptedBase64.startsWith("data:")) {
+      const commaIndex = decryptedBase64.indexOf(",");
+      if (commaIndex !== -1) {
+        const prefix = decryptedBase64.slice(0, commaIndex);
+        const match = prefix.match(/^data:([^;]+);base64/);
+        if (match) {
+          mimeType = match[1];
+        }
+        cleanBase64 = decryptedBase64.slice(commaIndex + 1);
+      }
+    }
+
+    let fileName = attendee.document_name || `aadhaar-${attendee.id.slice(0, 8)}`;
+
+    // Infer MIME type if missing or generic
+    if (!mimeType || mimeType === "application/octet-stream") {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".pdf")) mimeType = "application/pdf";
+      else if (lower.endsWith(".png")) mimeType = "image/png";
+      else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) mimeType = "image/jpeg";
+      else if (lower.endsWith(".webp")) mimeType = "image/webp";
+      else mimeType = "image/jpeg";
+    }
+
+    // Ensure fileName has proper extension
+    if (!fileName.includes(".")) {
+      if (mimeType === "application/pdf") fileName += ".pdf";
+      else if (mimeType === "image/png") fileName += ".png";
+      else fileName += ".jpg";
+    }
 
     const fileBuffer = Buffer.from(cleanBase64, "base64");
-    const mimeType = attendee.document_type || "application/octet-stream";
-    const fileName = attendee.document_name || `aadhaar-${attendee.id.slice(0, 8)}`;
-
     const disposition = isDownload ? "attachment" : "inline";
 
     return new NextResponse(fileBuffer, {

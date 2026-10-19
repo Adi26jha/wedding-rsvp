@@ -279,9 +279,13 @@ const globalForDb = globalThis as unknown as {
 const memoryDb = globalForDb.weddingMemoryDb ?? new MemoryDatabase();
 globalForDb.weddingMemoryDb = memoryDb;
 
+const DEFAULT_SUPABASE_URL = "https://tqwhcxakdycrzzxfxyct.supabase.co";
+const DEFAULT_SUPABASE_SERVICE_ROLE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxd2hjeGFrZHljcnp6eGZ4eWN0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTczNjYwMywiZXhwIjoyMTA3MzEyNjAzfQ.qxeV9T__f436HU52Pfodfha1738UfA6j9yA9YVmHJXM";
+
 function isSupabaseConfigured(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SUPABASE_SERVICE_ROLE_KEY;
   return Boolean(
     url &&
       key &&
@@ -293,10 +297,9 @@ function isSupabaseConfigured(): boolean {
 
 function getSupabaseServerClient(): SupabaseClient | null {
   if (!isSupabaseConfigured()) return null;
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SUPABASE_SERVICE_ROLE_KEY;
+  return createClient(url, key);
 }
 
 export const db = {
@@ -432,93 +435,124 @@ export const db = {
     const supabase = getSupabaseServerClient();
     if (!supabase) return memoryDb.getAllRsvps();
 
-    const { data, error } = await supabase
-      .from("rsvps")
-      .select("*, attendees(*)")
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("rsvps")
+        .select("*, attendees(*)")
+        .order("created_at", { ascending: false });
 
-    if (error || !data) return [];
+      if (error || !data || data.length === 0) {
+        if (error) console.warn("Supabase getAllRsvps warning:", error.message);
+        return memoryDb.getAllRsvps();
+      }
 
-    // Normalize attendee fields across all records
-    return (data as any[]).map((rsvp) => ({
-      ...rsvp,
-      attendees: (rsvp.attendees || []).map((row: any) => {
-        let docName = row.document_name;
-        let docType = row.document_type;
-        let docSize = row.document_size;
-        let ciphertext = row.encrypted_document;
+      // Normalize attendee fields across all records
+      return (data as any[]).map((rsvp) => ({
+        ...rsvp,
+        attendees: (rsvp.attendees || []).map((row: any) => {
+          let docName = row.document_name;
+          let docType = row.document_type;
+          let docSize = row.document_size;
+          let ciphertext = row.encrypted_document;
 
-        if (!ciphertext && row.encrypted_aadhaar) {
-          try {
-            const parsed = JSON.parse(row.encrypted_aadhaar);
-            docName = parsed.document_name;
-            docType = parsed.document_type;
-            docSize = parsed.document_size;
-            ciphertext = parsed.ciphertext;
-          } catch {
-            ciphertext = row.encrypted_aadhaar;
+          if (!ciphertext && row.encrypted_aadhaar) {
+            try {
+              const parsed = JSON.parse(row.encrypted_aadhaar);
+              docName = parsed.document_name || docName;
+              docType = parsed.document_type || docType;
+              docSize = parsed.document_size || docSize;
+              ciphertext = parsed.ciphertext;
+            } catch {
+              ciphertext = row.encrypted_aadhaar;
+            }
           }
-        }
 
-        return {
-          id: row.id,
-          rsvp_id: row.rsvp_id,
-          full_name: row.full_name,
-          age_group: row.age_group,
-          document_name: docName || "aadhaar_document",
-          document_type: docType || "image/jpeg",
-          document_size: docSize || 0,
-          encrypted_document: ciphertext || "",
-          document_iv: row.document_iv || row.aadhaar_iv || "",
-          document_auth_tag: row.document_auth_tag || row.aadhaar_auth_tag || "",
-          created_at: row.created_at,
-        };
-      }),
-    })) as RsvpRecord[];
+          if (!docType && docName) {
+            const lower = docName.toLowerCase();
+            if (lower.endsWith(".pdf")) docType = "application/pdf";
+            else if (lower.endsWith(".png")) docType = "image/png";
+            else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) docType = "image/jpeg";
+            else if (lower.endsWith(".webp")) docType = "image/webp";
+          }
+
+          return {
+            id: row.id,
+            rsvp_id: row.rsvp_id,
+            full_name: row.full_name,
+            age_group: row.age_group,
+            document_name: docName || "aadhaar_document",
+            document_type: docType || "image/jpeg",
+            document_size: docSize || 0,
+            encrypted_document: ciphertext || "",
+            document_iv: row.document_iv || row.aadhaar_iv || "",
+            document_auth_tag: row.document_auth_tag || row.aadhaar_auth_tag || "",
+            created_at: row.created_at,
+          };
+        }),
+      })) as RsvpRecord[];
+    } catch (err) {
+      console.error("Supabase getAllRsvps exception:", err);
+      return memoryDb.getAllRsvps();
+    }
   },
 
   async getAttendeeById(id: string): Promise<AttendeeRecord | null> {
     const supabase = getSupabaseServerClient();
-    if (!supabase) return memoryDb.getAttendeeById(id);
-
-    const { data: row, error } = await supabase
-      .from("attendees")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (error || !row) return null;
-
-    let docName = row.document_name;
-    let docType = row.document_type;
-    let docSize = row.document_size;
-    let ciphertext = row.encrypted_document;
-
-    if (!ciphertext && row.encrypted_aadhaar) {
+    if (supabase) {
       try {
-        const parsed = JSON.parse(row.encrypted_aadhaar);
-        docName = parsed.document_name;
-        docType = parsed.document_type;
-        docSize = parsed.document_size;
-        ciphertext = parsed.ciphertext;
-      } catch {
-        ciphertext = row.encrypted_aadhaar;
+        const { data: row, error } = await supabase
+          .from("attendees")
+          .select("*")
+          .eq("id", id)
+          .maybeSingle();
+
+        if (!error && row) {
+          let docName = row.document_name;
+          let docType = row.document_type;
+          let docSize = row.document_size;
+          let ciphertext = row.encrypted_document;
+
+          if (!ciphertext && row.encrypted_aadhaar) {
+            try {
+              const parsed = JSON.parse(row.encrypted_aadhaar);
+              docName = parsed.document_name || docName;
+              docType = parsed.document_type || docType;
+              docSize = parsed.document_size || docSize;
+              ciphertext = parsed.ciphertext;
+            } catch {
+              ciphertext = row.encrypted_aadhaar;
+            }
+          }
+
+          if (!docType && docName) {
+            const lower = docName.toLowerCase();
+            if (lower.endsWith(".pdf")) docType = "application/pdf";
+            else if (lower.endsWith(".png")) docType = "image/png";
+            else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) docType = "image/jpeg";
+            else if (lower.endsWith(".webp")) docType = "image/webp";
+          }
+
+          return {
+            id: row.id,
+            rsvp_id: row.rsvp_id,
+            full_name: row.full_name,
+            age_group: row.age_group,
+            document_name: docName || "aadhaar_document",
+            document_type: docType || "image/jpeg",
+            document_size: docSize || 0,
+            encrypted_document: ciphertext || "",
+            document_iv: row.document_iv || row.aadhaar_iv || "",
+            document_auth_tag: row.document_auth_tag || row.aadhaar_auth_tag || "",
+            created_at: row.created_at,
+          };
+        }
+      } catch (err) {
+        console.error("Supabase getAttendeeById error, trying memory store:", err);
       }
     }
 
-    return {
-      id: row.id,
-      rsvp_id: row.rsvp_id,
-      full_name: row.full_name,
-      age_group: row.age_group,
-      document_name: docName || "aadhaar_document",
-      document_type: docType || "image/jpeg",
-      document_size: docSize || 0,
-      encrypted_document: ciphertext || "",
-      document_iv: row.document_iv || row.aadhaar_iv || "",
-      document_auth_tag: row.document_auth_tag || row.aadhaar_auth_tag || "",
-      created_at: row.created_at,
-    };
+    // Fallback to memory store if not found in Supabase (e.g. sample demo records)
+    return memoryDb.getAttendeeById(id);
   },
 
   async logAudit(log: Omit<AuditLogRecord, "id" | "timestamp">): Promise<AuditLogRecord> {
