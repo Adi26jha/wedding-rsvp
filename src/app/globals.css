@@ -124,3 +124,27 @@
     color: transparent;
   }
 }
+
+/* Completely suppress and remove Netlify HUD & "Powered by Netlify" badge */
+#nl-badge-frame,
+#nl-hud-frame,
+iframe[id^="nl-"],
+iframe[title="Powered by Netlify"],
+iframe[title="Netlify"],
+[data-netlify-drawer],
+.netlify-badge {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  position: absolute !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: circle(0) !important;
+  z-index: -9999999 !important;
+  transform: scale(0) !important;
+}
+

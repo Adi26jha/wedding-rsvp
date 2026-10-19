@@ -63,6 +63,46 @@ export default function RootLayout({
     <html lang="en" className={`${cormorant.variable} ${plusJakarta.variable}`}>
       <head>
         <meta name="robots" content="noindex, nofollow" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var removeNetlifyBadge = function() {
+                  var badge = document.getElementById("nl-badge-frame") ||
+                              document.getElementById("nl-hud-frame") ||
+                              document.querySelector('iframe[title="Powered by Netlify"]') ||
+                              document.querySelector('iframe[title="Netlify"]') ||
+                              document.querySelector('script[data-nf-variant]');
+                  if (badge && badge.parentNode) {
+                    badge.parentNode.removeChild(badge);
+                  }
+                };
+                if (typeof MutationObserver !== "undefined") {
+                  var observer = new MutationObserver(function(mutations) {
+                    for (var i = 0; i < mutations.length; i++) {
+                      var added = mutations[i].addedNodes;
+                      for (var j = 0; j < added.length; j++) {
+                        var node = added[j];
+                        if (!node || !node.tagName) continue;
+                        if (
+                          node.id === "nl-badge-frame" ||
+                          node.id === "nl-hud-frame" ||
+                          (node.tagName === "IFRAME" && (node.title === "Powered by Netlify" || node.title === "Netlify")) ||
+                          (node.tagName === "SCRIPT" && node.getAttribute && node.getAttribute("data-nf-variant"))
+                        ) {
+                          if (node.parentNode) node.parentNode.removeChild(node);
+                        }
+                      }
+                    }
+                  });
+                  observer.observe(document.documentElement, { childList: true, subtree: true });
+                }
+                window.addEventListener("DOMContentLoaded", removeNetlifyBadge);
+                window.addEventListener("load", removeNetlifyBadge);
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="bg-ivory text-charcoal-900 antialiased selection:bg-maroon-700 selection:text-ivory-50">
         {children}
