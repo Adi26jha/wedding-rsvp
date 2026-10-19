@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { EncryptedPayload } from "./crypto";
+import { EncryptedPayload, encryptAadhaar } from "./crypto";
+import fs from "fs";
 
 export interface RsvpRecord {
   id: string;
@@ -42,11 +43,12 @@ export interface AuditLogRecord {
   timestamp: string;
 }
 
-// In-memory volatile store for local development / testing without live Supabase credentials
+// In-memory store with disk synchronization and globalThis persistence
 class MemoryDatabase {
   private rsvps: Map<string, RsvpRecord> = new Map();
   private attendees: Map<string, AttendeeRecord> = new Map();
   private auditLogs: AuditLogRecord[] = [];
+  private STORE_FILE = "/tmp/wedding_rsvp_store.json";
 
   constructor() {
     // Seed initial demo data for immediate testing of admin views
@@ -65,36 +67,87 @@ class MemoryDatabase {
       updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
     });
 
-    this.attendees.set("sample-att-001", {
-      id: "sample-att-001",
-      rsvp_id: sampleRsvpId,
-      full_name: "Vikram Malhotra",
-      age_group: "adult",
-      document_name: "vikram_aadhaar.pdf",
-      document_type: "application/pdf",
-      document_size: 245000,
-      encrypted_document: "",
-      document_iv: "",
-      document_auth_tag: "",
-      created_at: new Date().toISOString(),
-    });
+    try {
+      const samplePdf = encryptAadhaar(
+        "data:application/pdf;base64,JVBERi0xLjAKMSAwIG9iajw8L1BhZ2VzIDIgMCBSPj5lbmRvYmogMiAwIG9iajw8L0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iaiAzIDAgb2JqPDwvTWVkaWFCb3hbMCAwIDMgM10+PmVuZG9iagp0cmFpbGVyPDwvUm9vdCAxIDAgUj4+Cg=="
+      );
+      const sampleImg = encryptAadhaar(
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      );
 
-    this.attendees.set("sample-att-002", {
-      id: "sample-att-002",
-      rsvp_id: sampleRsvpId,
-      full_name: "Sunita Malhotra",
-      age_group: "adult",
-      document_name: "sunita_aadhaar.jpg",
-      document_type: "image/jpeg",
-      document_size: 412000,
-      encrypted_document: "",
-      document_iv: "",
-      document_auth_tag: "",
-      created_at: new Date().toISOString(),
-    });
+      this.attendees.set("sample-att-001", {
+        id: "sample-att-001",
+        rsvp_id: sampleRsvpId,
+        full_name: "Vikram Malhotra",
+        age_group: "adult",
+        document_name: "vikram_aadhaar.pdf",
+        document_type: "application/pdf",
+        document_size: 245000,
+        encrypted_document: samplePdf.ciphertext,
+        document_iv: samplePdf.iv,
+        document_auth_tag: samplePdf.authTag,
+        created_at: new Date().toISOString(),
+      });
+
+      this.attendees.set("sample-att-002", {
+        id: "sample-att-002",
+        rsvp_id: sampleRsvpId,
+        full_name: "Sunita Malhotra",
+        age_group: "adult",
+        document_name: "sunita_aadhaar.jpg",
+        document_type: "image/jpeg",
+        document_size: 412000,
+        encrypted_document: sampleImg.ciphertext,
+        document_iv: sampleImg.iv,
+        document_auth_tag: sampleImg.authTag,
+        created_at: new Date().toISOString(),
+      });
+    } catch {
+      // Ignore if crypto fails during bootstrap
+    }
+
+    this.loadFromDisk();
+  }
+
+  private saveToDisk() {
+    try {
+      const data = {
+        rsvps: Array.from(this.rsvps.entries()),
+        attendees: Array.from(this.attendees.entries()),
+        auditLogs: this.auditLogs,
+      };
+      fs.writeFileSync(this.STORE_FILE, JSON.stringify(data), "utf-8");
+    } catch {
+      // Ignore file writes in read-only environments
+    }
+  }
+
+  private loadFromDisk() {
+    try {
+      if (fs.existsSync(this.STORE_FILE)) {
+        const raw = fs.readFileSync(this.STORE_FILE, "utf-8");
+        const data = JSON.parse(raw);
+        if (data.rsvps && Array.isArray(data.rsvps)) {
+          for (const [id, rsvp] of data.rsvps) {
+            this.rsvps.set(id, rsvp);
+          }
+        }
+        if (data.attendees && Array.isArray(data.attendees)) {
+          for (const [id, att] of data.attendees) {
+            this.attendees.set(id, att);
+          }
+        }
+        if (data.auditLogs && Array.isArray(data.auditLogs)) {
+          this.auditLogs = data.auditLogs;
+        }
+      }
+    } catch {
+      // Ignore read errors
+    }
   }
 
   async findRsvpByMobile(mobile: string): Promise<RsvpRecord | null> {
+    this.loadFromDisk();
     const cleaned = mobile.replace(/[\s-]/g, "");
     for (const rsvp of this.rsvps.values()) {
       if (rsvp.mobile_number === cleaned || rsvp.mobile_number.endsWith(cleaned.slice(-10))) {
@@ -118,6 +171,7 @@ class MemoryDatabase {
       encrypted: EncryptedPayload;
     }>
   ): Promise<RsvpRecord> {
+    this.loadFromDisk();
     // Check if RSVP exists for mobile
     const existing = await this.findRsvpByMobile(rsvpData.mobile_number);
     const rsvpId = existing ? existing.id : `rsvp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -161,10 +215,15 @@ class MemoryDatabase {
       savedAttendees.push(attendeeRecord);
     }
 
+    record.attendees = savedAttendees;
+    this.rsvps.set(rsvpId, record);
+    this.saveToDisk();
+
     return { ...record, attendees: savedAttendees };
   }
 
   async getAllRsvps(): Promise<RsvpRecord[]> {
+    this.loadFromDisk();
     const list: RsvpRecord[] = [];
     for (const rsvp of this.rsvps.values()) {
       const attList = Array.from(this.attendees.values()).filter(
@@ -178,26 +237,47 @@ class MemoryDatabase {
   }
 
   async getAttendeeById(id: string): Promise<AttendeeRecord | null> {
-    return this.attendees.get(id) || null;
+    this.loadFromDisk();
+    const direct = this.attendees.get(id);
+    if (direct) return direct;
+
+    // Deep search inside all RSVPs
+    for (const rsvp of this.rsvps.values()) {
+      if (rsvp.attendees) {
+        const found = rsvp.attendees.find((a) => a.id === id);
+        if (found) {
+          this.attendees.set(found.id, found);
+          return found;
+        }
+      }
+    }
+    return null;
   }
 
   async logAudit(log: Omit<AuditLogRecord, "id" | "timestamp">): Promise<AuditLogRecord> {
+    this.loadFromDisk();
     const entry: AuditLogRecord = {
       ...log,
       id: `audit-${Date.now()}`,
       timestamp: new Date().toISOString(),
     };
     this.auditLogs.unshift(entry);
+    this.saveToDisk();
     return entry;
   }
 
   async getAuditLogs(): Promise<AuditLogRecord[]> {
+    this.loadFromDisk();
     return [...this.auditLogs];
   }
 }
 
-// Global singleton memory store
-const memoryDb = new MemoryDatabase();
+// Global singleton memory store across all App Router route handlers
+const globalForDb = globalThis as unknown as {
+  weddingMemoryDb?: MemoryDatabase;
+};
+const memoryDb = globalForDb.weddingMemoryDb ?? new MemoryDatabase();
+globalForDb.weddingMemoryDb = memoryDb;
 
 function isSupabaseConfigured(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
