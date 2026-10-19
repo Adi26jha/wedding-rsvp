@@ -24,7 +24,63 @@ interface Step4Props {
   onBack: () => void;
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB raw allowance, compressed to <200KB
+
+/**
+ * Client-side high-quality image compressor
+ * Downscales camera photos (e.g. 12MP/5MB) to max 1400px width at 0.82 JPEG quality (~150KB)
+ */
+function compressImage(file: File, maxWidth = 1400, quality = 0.82): Promise<{ base64: string; size: number }> {
+  return new Promise((resolve, reject) => {
+    // If it's a PDF, bypass canvas compression
+    if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        resolve({ base64, size: file.size });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve({ base64: e.target?.result as string, size: file.size });
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressedBase64 = canvas.toDataURL("image/jpeg", quality);
+      const approxSize = Math.round((compressedBase64.length * 3) / 4);
+      resolve({ base64: compressedBase64, size: approxSize });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      const reader = new FileReader();
+      reader.onload = (e) => resolve({ base64: e.target?.result as string, size: file.size });
+      reader.readAsDataURL(file);
+    };
+    img.src = url;
+  });
+}
 
 export const Step4Attendees: React.FC<Step4Props> = ({
   formData,
@@ -59,11 +115,11 @@ export const Step4Attendees: React.FC<Step4Props> = ({
     updateFormData({ attendees: updated });
   };
 
-  const handleFileUpload = (index: number, file: File) => {
+  const handleFileUpload = async (index: number, file: File) => {
     if (file.size > MAX_FILE_SIZE) {
       setErrors({
         ...errors,
-        [`${index}-file`]: "File size exceeds 5MB. Please upload a smaller file.",
+        [`${index}-file`]: "File size exceeds 10MB. Please choose a smaller photo or document.",
       });
       return;
     }
@@ -84,17 +140,16 @@ export const Step4Attendees: React.FC<Step4Props> = ({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
+    try {
+      const { base64, size } = await compressImage(file);
       const updated = [...formData.attendees];
       if (!updated[index]) {
         updated[index] = { fullName: "", ageGroup: "adult" };
       }
 
       updated[index].documentName = file.name;
-      updated[index].documentType = file.type || "image/jpeg";
-      updated[index].documentSize = file.size;
+      updated[index].documentType = file.type.startsWith("image/") ? "image/jpeg" : file.type;
+      updated[index].documentSize = size;
       updated[index].documentBase64 = base64;
       updated[index].documentPreview = file.type.startsWith("image/") ? base64 : undefined;
 
@@ -105,9 +160,12 @@ export const Step4Attendees: React.FC<Step4Props> = ({
         delete copy[`${index}-file`];
         setErrors(copy);
       }
-    };
-
-    reader.readAsDataURL(file);
+    } catch {
+      setErrors({
+        ...errors,
+        [`${index}-file`]: "Could not process this file. Please try another photo or document.",
+      });
+    }
   };
 
   const removeFile = (index: number) => {

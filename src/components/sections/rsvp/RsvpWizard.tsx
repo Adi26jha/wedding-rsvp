@@ -103,10 +103,21 @@ export const RsvpWizard: React.FC<RsvpWizardProps> = ({ initialFamilyParam }) =>
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        if (res.status === 413) {
+          setServerError("Uploaded document is too large. Please upload a smaller image or document.");
+        } else {
+          setServerError(`Server error (${res.status || "500"}). Please try submitting again.`);
+        }
+        setIsSubmitting(false);
+        return;
+      }
 
       if (!res.ok) {
-        setServerError(data.error || "Submission failed. Please check your details and try again.");
+        setServerError(data.error || data.details || "Submission failed. Please check your details and try again.");
         setIsSubmitting(false);
         return;
       }
@@ -127,7 +138,12 @@ export const RsvpWizard: React.FC<RsvpWizardProps> = ({ initialFamilyParam }) =>
       } catch {}
     } catch (err: unknown) {
       console.error("Submission request error:", err);
-      setServerError("Network error. Please ensure you are connected and try again.");
+      const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
+      setServerError(
+        isOffline
+          ? "No internet connection detected. Please check your network and try again."
+          : "Unable to reach server. Please check your internet connection or file size and try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
