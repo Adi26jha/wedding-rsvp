@@ -9,7 +9,10 @@ export function verifyAdminAccess(req: NextRequest): {
   const cookieToken = req.cookies.get("admin_session")?.value;
   const queryKey = req.nextUrl.searchParams.get("key");
 
-  const expectedPass = process.env.ADMIN_ACCESS_PASSWORD || "corbett2026admin";
+  const expectedPass =
+    process.env.ADMIN_ACCESS_PASSWORD ||
+    process.env.ADMIN_SECRET_KEY ||
+    "corbett2026admin";
 
   // Check header, cookie, or query param
   if (

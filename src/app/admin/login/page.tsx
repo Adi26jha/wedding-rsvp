@@ -110,9 +110,6 @@ export default function AdminLoginPage() {
                 className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-ivory-100 border border-gold-300 text-charcoal-900 placeholder-charcoal-400 text-xs focus:outline-none focus:ring-2 focus:ring-maroon-100"
               />
             </div>
-            <p className="text-[10px] text-charcoal-400 mt-1">
-              Default passcode: <code className="bg-ivory-200 px-1 py-0.5 rounded text-charcoal-700">corbett2026admin</code>
-            </p>
           </div>
 
           <div className="pt-2">
