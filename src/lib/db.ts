@@ -310,7 +310,7 @@ export const db = {
     const cleaned = mobile.replace(/[\s-]/g, "");
     const { data, error } = await supabase
       .from("rsvps")
-      .select("*, attendees(*)")
+      .select("*, attendees(id, rsvp_id, full_name, age_group, aadhaar_last4, aadhaar_iv, aadhaar_auth_tag, created_at)")
       .eq("mobile_number", cleaned)
       .maybeSingle();
 
@@ -436,54 +436,37 @@ export const db = {
     if (!supabase) return memoryDb.getAllRsvps();
 
     try {
+      // Intentionally omit heavy encrypted_aadhaar payload here to prevent query timeouts
+      // when serializing documents across dozens of attendees. Full document payloads
+      // are loaded on-demand via getAttendeeById() when viewing or downloading.
       const { data, error } = await supabase
         .from("rsvps")
-        .select("*, attendees(*)")
+        .select("*, attendees(id, rsvp_id, full_name, age_group, aadhaar_last4, aadhaar_iv, aadhaar_auth_tag, created_at)")
         .order("created_at", { ascending: false });
 
-      if (error || !data || data.length === 0) {
-        if (error) console.warn("Supabase getAllRsvps warning:", error.message);
+      if (error) {
+        console.error("Supabase getAllRsvps query error:", error.message);
         return memoryDb.getAllRsvps();
       }
+
+      if (!data) return [];
 
       // Normalize attendee fields across all records
       return (data as any[]).map((rsvp) => ({
         ...rsvp,
         attendees: (rsvp.attendees || []).map((row: any) => {
-          let docName = row.document_name;
-          let docType = row.document_type;
-          let docSize = row.document_size;
-          let ciphertext = row.encrypted_document;
-
-          if (!ciphertext && row.encrypted_aadhaar) {
-            try {
-              const parsed = JSON.parse(row.encrypted_aadhaar);
-              docName = parsed.document_name || docName;
-              docType = parsed.document_type || docType;
-              docSize = parsed.document_size || docSize;
-              ciphertext = parsed.ciphertext;
-            } catch {
-              ciphertext = row.encrypted_aadhaar;
-            }
-          }
-
-          if (!docType && docName) {
-            const lower = docName.toLowerCase();
-            if (lower.endsWith(".pdf")) docType = "application/pdf";
-            else if (lower.endsWith(".png")) docType = "image/png";
-            else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) docType = "image/jpeg";
-            else if (lower.endsWith(".webp")) docType = "image/webp";
-          }
+          const hasDoc = Boolean(row.aadhaar_iv || row.aadhaar_last4 || row.document_iv);
+          const docName = (row.full_name || "attendee").trim().replace(/\s+/g, "_") + "_aadhaar.jpg";
 
           return {
             id: row.id,
             rsvp_id: row.rsvp_id,
             full_name: row.full_name,
             age_group: row.age_group,
-            document_name: docName || "aadhaar_document",
-            document_type: docType || "image/jpeg",
-            document_size: docSize || 0,
-            encrypted_document: ciphertext || "",
+            document_name: docName,
+            document_type: "image/jpeg",
+            document_size: 0,
+            encrypted_document: hasDoc ? "attached" : "",
             document_iv: row.document_iv || row.aadhaar_iv || "",
             document_auth_tag: row.document_auth_tag || row.aadhaar_auth_tag || "",
             created_at: row.created_at,

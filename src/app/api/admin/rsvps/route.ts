@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
         documentName: a.document_name,
         documentType: a.document_type,
         documentSize: a.document_size,
-        hasDocument: Boolean(a.encrypted_document || a.document_name),
+        hasDocument: Boolean(a.encrypted_document || a.document_name || a.document_iv),
       })),
     }));
 
